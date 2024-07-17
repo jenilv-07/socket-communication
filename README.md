@@ -1,2 +1,2 @@
-# socket-communication
-tow way communication uisng soket
+# Socket-communication
+tow way communication using socket
