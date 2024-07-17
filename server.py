@@ -1,42 +1,38 @@
 import socket
-import os
 
-# Define the socket file path
-socket_file = '/home/jenilv/code/soketpy/unix_socket'
+def start_server():
+    # Create a socket object
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Ensure the socket file does not already exist and is not a directory
-if os.path.exists(socket_file):
-    if os.path.isdir(socket_file):
-        raise OSError(f"Socket file path is a directory: {socket_file}")
-    else:
-        os.remove(socket_file)
+    # Get local machine name
+    host = 'localhost'
+    port = 9999
 
-try:
-    # Create a Unix socket
-    server_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-    # Bind the socket to the file path
-    server_socket.bind(socket_file)
+    # Bind the socket to the port
+    server_socket.bind((host, port))
 
     # Listen for incoming connections
-    server_socket.listen(1)
+    server_socket.listen(5)
 
-    print(f"Server listening on {socket_file}")
+    print("Server listening on port", port)
 
     while True:
-        # Accept a connection
-        client_socket, client_address = server_socket.accept()
-        print("Accepted connection")
+        # Establish a connection
+        client_socket, addr = server_socket.accept()
+        print("Got a connection from", addr)
 
-        # Receive data
-        data = client_socket.recv(1024)
-        if data:
-            print(f"Received: {data.decode('utf-8')}")
-            client_socket.sendall(b"Hello from server!")
+        while True:
+            # Receive data from the client
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            print("Received from client:", data.decode())
 
-        # Close the connection
+            # Send data back to the client
+            response = input("Enter response to client: ")
+            client_socket.send(response.encode())
+
         client_socket.close()
-finally:
-    # Clean up the socket file
-    if os.path.exists(socket_file):
-        os.remove(socket_file)
+
+if __name__ == "__main__":
+    start_server()
